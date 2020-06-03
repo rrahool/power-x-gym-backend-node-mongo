@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <h1>My Node Mongo DB Site</h1>
+        <h6 id="packageName"></h6>
+        <div class="row">
+            <input type="text" class="form-control" id="name" placeholder="Package Name">
+            <br><br>
+            <input type="text" class="form-control" id="price" placeholder="Price">
+            <br><br>
+            <input type="text" class="form-control" id="stock" placeholder="Stock">
+            <br><br>
+            <button class="btn btn-primary" id="addPackage">Add Package</button>
+        </div>
+
+        <p style="display: none; color: green;" id="successMessage">
+            <small>Package Added Successfully</small>
+        </p>
+
+        <ul id="package-list">
+
+        </ul>
+    </div>
+    <script>
+        // get data
+        fetch('http://localhost:4000/packages')
+        .then(res => res.json())
+        .then(data => {
+            // document.getElementById('productName').innerText = data.name;
+            // console.log(data);
+            displayPackages(data);
+        });
+
+        function displayPackages(data){
+            const packageContainer = document.getElementById('package-list');
+            for (let i = 0; i < data.length; i++) {
+                const package = data[i];
+                appendProduct(package, packageContainer);
+            }
+        }
+        function appendProduct(package, packageContainer){
+            const item = document.createElement('li');
+            item.innerText = `Name: ${product.name} || Price: $${product.price} || Available: ${package.stock}`;
+            packageContainer.appendChild(item);
+        }
+
+        // POST data to the server
+        const btnAddPackage = document.getElementById('addPackages');
+        btnAddPackage.addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const stock = document.getElementById('stock').value;
+            const package = {name, price, stock}
+            // console.log(product);
+
+            // post
+            fetch('http://localhost:4000/addPackages', {
+                method: 'POST',
+                body: JSON.stringify(package),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                updatePackage(data);
+                // console.log(data);                 
+
+                //clean input fields
+                document.getElementById('name').value = '';
+                document.getElementById('price').value = '';
+                document.getElementById('stock').value = '';
+
+                // show success message
+                const success = document.getElementById('successMessage');
+                success.style.display = 'block';
+                setTimeout(() => {
+                    success.style.display = 'none';
+                }, 5000);
+
+            })
+            });
+
+        function updatePackage(package){
+            const packageContainer = document.getElementById('package-list');
+            appendProduct(package, packageContainer);
+            document.getElementById('packageName').innerText = package.name;
+        }
+    </script>
+</body>
+</html>
