@@ -52,7 +52,25 @@ app.get('/packages', function (req, res) {
     });
 })
 
-app.get('/packages/:key', (req, res) => {
+app.get('/plans', function (req, res) {
+    client = new MongoClient(uri, { useNewUrlParser: true });
+    // read data from database
+    client.connect(err => {
+        const collection = client.db("powerXgym").collection("plans");
+        collection.find().toArray((err, documents) =>{
+            if(err){
+                console.log(err);
+                res.status(500).send({message: err});
+            }
+            else{
+                res.send(documents);
+            }
+        })
+        client.close();
+    });
+})
+
+app.get('/packages/:id', (req, res) => {
     
     const key = req.params.key;
 
@@ -101,6 +119,7 @@ app.post('/getPackagesByKey', (req, res) => {
 // delete
 
 // post data
+// add packages
 app.post('/addPackages', (req, res) => {
     // console.log('data recieved', req.body);
     const package = req.body;
@@ -125,19 +144,17 @@ app.post('/addPackages', (req, res) => {
     });
 })
 
-// place order
-app.post('/placeOrder', (req, res) => {
+// add plans
+app.post('/addPlans', (req, res) => {
     // console.log('data recieved', req.body);
-    const orderDetails = req.body;
-    orderDetails.orderTime = new Date();
-    console.log(orderDetails);
-    
+    const plans = req.body;
+    console.log(plans);   
 
     // save data to database
     client = new MongoClient(uri, { useNewUrlParser: true });
     client.connect(err => {
-        const collection = client.db("powerXgym").collection("orders");
-        collection.insert(orderDetails, (err, result) =>{
+        const collection = client.db("powerXgym").collection("plans");
+        collection.insert(plans, (err, result) =>{
             // console.log("Data Successfully Inserted to Cloud DB", result);
             if(err){
                 console.log(err);
